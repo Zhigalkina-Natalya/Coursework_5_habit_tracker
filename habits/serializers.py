@@ -14,8 +14,19 @@ class HabitSerializer(serializers.ModelSerializer):
 
         validators = [HabitValidator()]
 
+    def validate(self, attrs):
+        """Дополнительная проверка."""
+        instance = self.instance
+        related = attrs.get("related_habit")
+
+        if instance and related == instance:
+            raise serializers.ValidationError("Привычка не может ссылаться сама на себя")
+
+        return attrs
+
 
 class PublicHabitSerializer(serializers.ModelSerializer):
+    """Сериализатор публичных привычек (без owner)."""
     class Meta:
         model = Habit
         exclude = ("owner", "last_run")

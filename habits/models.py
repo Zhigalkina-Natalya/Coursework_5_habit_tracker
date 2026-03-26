@@ -47,9 +47,8 @@ class Habit(models.Model):
         help_text="Вознаграждение после выполнения привычки",
     )
 
-    execution_time = models.PositiveIntegerField(
-        verbose_name="Время выполнения", help_text="Время выполнения привычки в секундах"
-    )
+    execution_time = models.TimeField(verbose_name="Время выполнения",
+                                      help_text="Время выполнения привычки (формат HH:MM:SS)")
 
     is_public = models.BooleanField(
         default=False, verbose_name="Публичная привычка", help_text="Доступна ли привычка другим пользователям"

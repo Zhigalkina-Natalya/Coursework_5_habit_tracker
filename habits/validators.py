@@ -1,3 +1,5 @@
+from datetime import time
+
 from rest_framework import serializers
 
 
@@ -20,21 +22,22 @@ class HabitValidator:
         if execution_time is None:
             raise serializers.ValidationError("Укажите время выполнения.")
 
-        if execution_time <= 0:
-            raise serializers.ValidationError("Время выполнения должно быть больше 0.")
+        if execution_time == time(0, 0, 0):
+            raise serializers.ValidationError("Время выполнения не может быть 0.")
 
-        if execution_time > 120:
+        if execution_time is not None and execution_time > time(hour=0, minute=2):
             raise serializers.ValidationError("Время выполнения привычки должно быть не больше 120 секунд.")
 
         # периодичность
         if periodicity is None:
             raise serializers.ValidationError("Укажите периодичность.")
 
-        if periodicity < 1:
-            raise serializers.ValidationError("Периодичность должна быть не меньше 1 дня.")
+        if periodicity is not None:
+            if periodicity < 1:
+                raise serializers.ValidationError("Периодичность должна быть не меньше 1 дня.")
 
-        if periodicity > 7:
-            raise serializers.ValidationError("Нельзя выполнять привычку реже, чем раз в 7 дней.")
+            if periodicity > 7:
+                raise serializers.ValidationError("Нельзя выполнять привычку реже, чем раз в 7 дней.")
 
         # связанная привычка должна быть приятной
         if related and not related.is_pleasant:
@@ -43,8 +46,3 @@ class HabitValidator:
         # приятная привычка не может иметь reward или related
         if is_pleasant and (reward or related):
             raise serializers.ValidationError("Приятная привычка не может иметь награду или связанную привычку.")
-
-        # привычка не может ссылаться на себя
-        instance = getattr(self, "instance", None)
-        if instance and related == instance:
-            raise serializers.ValidationError("Привычка не может ссылаться сама на себя")
